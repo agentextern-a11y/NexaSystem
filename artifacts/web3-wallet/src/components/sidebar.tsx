@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { useListWallets, getListWalletsQueryKey, useListNetworks, getListNetworksQueryKey } from "@workspace/api-client-react";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/portfolio", label: "Portfolio", icon: PieChart },
   { href: "/wallets", label: "Wallets", icon: Wallet },
   { href: "/transactions", label: "Transactions", icon: History },
@@ -28,6 +28,8 @@ const navItems = [
 
 export function Sidebar() {
   const [location] = useLocation();
+  // Treat "/dashboard" and "/" as the same active state for the Dashboard nav item
+  const activePath = location === "/" ? "/dashboard" : location;
   const [walletOpen, setWalletOpen] = useState(false);
   const { data: wallets = [] } = useListWallets({ query: { queryKey: getListWalletsQueryKey() } });
   const { data: networks = [] } = useListNetworks({ query: { queryKey: getListNetworksQueryKey() } });
@@ -97,7 +99,7 @@ export function Sidebar() {
           Navigation
         </div>
         {navItems.map((item) => {
-          const isActive = location === item.href;
+          const isActive = activePath === item.href;
           return (
             <Link key={item.href} href={item.href}>
               <div className={cn(

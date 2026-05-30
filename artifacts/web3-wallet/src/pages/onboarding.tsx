@@ -33,7 +33,7 @@ export default function Onboarding() {
         onSuccess: () => {
           toast.success("Wallet created! Welcome to NP Wallet.");
           queryClient.invalidateQueries({ queryKey: getListWalletsQueryKey() });
-          navigate("/");
+          navigate("/dashboard");
         },
         onError: () => toast.error("Failed to create wallet. Please try again."),
       }

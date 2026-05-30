@@ -49,14 +49,8 @@
   --color-sidebar: hsl(var(--sidebar));
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
-  --color-sidebar-primary: hsl(var(--sidebar-primary));
-  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
-  --color-sidebar-accent: hsl(var(--sidebar-accent));
-  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
-  --color-sidebar-ring: hsl(var(--sidebar-ring));
 
   --font-sans: var(--app-font-sans);
-  --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -66,32 +60,33 @@
 }
 
 :root {
-  /* Light mode — professional fintech */
+  /* Nexa light theme — navy/cyan brand */
   --background: 210 20% 98%;
-  --foreground: 222 47% 11%;
+  --foreground: 222 47% 8%;
 
   --muted: 210 20% 94%;
   --muted-foreground: 215 16% 47%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
+  --popover-foreground: 222 47% 8%;
   --popover-border: 214 32% 91%;
 
   --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card-foreground: 222 47% 8%;
   --card-border: 214 32% 91%;
 
   --border: 214 32% 91%;
   --input: 214 32% 91%;
 
-  --primary: 221 83% 53%;
+  /* Nexa primary: electric blue */
+  --primary: 220 100% 56%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 210 20% 94%;
-  --secondary-foreground: 222 47% 11%;
+  --secondary-foreground: 222 47% 8%;
 
-  --accent: 210 20% 94%;
-  --accent-foreground: 222 47% 11%;
+  --accent: 185 100% 50%;
+  --accent-foreground: 222 47% 8%;
 
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
@@ -102,41 +97,36 @@
   --warning: 38 92% 50%;
   --warning-foreground: 0 0% 100%;
 
-  --ring: 221 83% 53%;
+  --ring: 220 100% 56%;
+  --radius: 0.65rem;
 
-  --radius: 0.6rem;
-
-  --chart-1: 221 83% 53%;
+  --chart-1: 220 100% 56%;
   --chart-2: 142 72% 29%;
   --chart-3: 38 92% 50%;
   --chart-4: 280 65% 60%;
-  --chart-5: 340 75% 55%;
+  --chart-5: 185 100% 40%;
 
-  --sidebar: 222 47% 11%;
-  --sidebar-foreground: 210 20% 90%;
-  --sidebar-border: 222 40% 18%;
-  --sidebar-primary: 221 83% 65%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 222 40% 18%;
-  --sidebar-accent-foreground: 210 20% 90%;
-  --sidebar-ring: 221 83% 53%;
+  /* Dark sidebar matching Nexa navy brand */
+  --sidebar: 222 60% 8%;
+  --sidebar-foreground: 210 20% 88%;
+  --sidebar-border: 222 45% 16%;
 
   --app-font-sans: 'Inter', sans-serif;
-  --app-font-serif: Georgia, serif;
   --app-font-mono: 'Menlo', 'Monaco', monospace;
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply font-sans bg-background text-foreground antialiased;
-  }
+  * { @apply border-border; }
+  body { @apply font-sans bg-background text-foreground antialiased; }
 }
 
-/* Sidebar uses dark theme even in light mode for contrast */
-.sidebar-dark {
-  background-color: hsl(222, 47%, 11%);
-  color: hsl(210, 20%, 90%);
+/* Nexa brand gradient utility */
+.nexa-gradient {
+  background: linear-gradient(135deg, #00e5ff 0%, #2979ff 50%, #1a237e 100%);
+}
+.nexa-text-gradient {
+  background: linear-gradient(135deg, #00b8d4, #2979ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

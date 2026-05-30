@@ -1,22 +1,35 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: NP Wallet - Web3 Wallet API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: wallets
+    description: Wallet management
+  - name: portfolio
+    description: Portfolio overview
+  - name: tokens
+    description: Token data and prices
+  - name: transactions
+    description: Transaction history
+  - name: networks
+    description: Blockchain networks
+  - name: nfts
+    description: NFT gallery
+  - name: activity
+    description: Recent activity
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +37,340 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /wallets:
+    get:
+      operationId: listWallets
+      tags: [wallets]
+      summary: List all wallets
+      responses:
+        "200":
+          description: List of wallets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Wallet"
+    post:
+      operationId: createWallet
+      tags: [wallets]
+      summary: Create a new wallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WalletInput"
+      responses:
+        "201":
+          description: Wallet created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+
+  /wallets/{walletId}:
+    get:
+      operationId: getWallet
+      tags: [wallets]
+      summary: Get wallet by ID
+      parameters:
+        - name: walletId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Wallet details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateWallet
+      tags: [wallets]
+      summary: Update wallet metadata
+      parameters:
+        - name: walletId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WalletUpdate"
+      responses:
+        "200":
+          description: Updated wallet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+    delete:
+      operationId: deleteWallet
+      tags: [wallets]
+      summary: Delete wallet
+      parameters:
+        - name: walletId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /wallets/{walletId}/tokens:
+    get:
+      operationId: getWalletTokens
+      tags: [wallets]
+      summary: Get token holdings for a wallet
+      parameters:
+        - name: walletId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Token holdings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TokenHolding"
+
+  /wallets/{walletId}/send:
+    post:
+      operationId: sendTransaction
+      tags: [wallets]
+      summary: Send a transaction
+      parameters:
+        - name: walletId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendInput"
+      responses:
+        "201":
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+
+  /wallets/{walletId}/swap:
+    post:
+      operationId: swapTokens
+      tags: [wallets]
+      summary: Swap tokens in a wallet
+      parameters:
+        - name: walletId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SwapInput"
+      responses:
+        "201":
+          description: Swap executed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+
+  /wallets/{walletId}/nfts:
+    get:
+      operationId: getWalletNfts
+      tags: [nfts]
+      summary: Get NFTs owned by a wallet
+      parameters:
+        - name: walletId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: NFT list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Nft"
+
+  /transactions:
+    get:
+      operationId: listTransactions
+      tags: [transactions]
+      summary: List all transactions across wallets
+      parameters:
+        - name: walletId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: type
+          in: query
+          schema:
+            type: ["string", "null"]
+            enum: [send, receive, swap, contract, null]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Transaction list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+
+  /transactions/{txId}:
+    get:
+      operationId: getTransaction
+      tags: [transactions]
+      summary: Get transaction details
+      parameters:
+        - name: txId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+
+  /portfolio/summary:
+    get:
+      operationId: getPortfolioSummary
+      tags: [portfolio]
+      summary: Get total portfolio summary across all wallets
+      responses:
+        "200":
+          description: Portfolio summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortfolioSummary"
+
+  /portfolio/history:
+    get:
+      operationId: getPortfolioHistory
+      tags: [portfolio]
+      summary: Get portfolio value over time
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [1d, 7d, 30d, 90d, 1y]
+            default: 7d
+      responses:
+        "200":
+          description: Portfolio value history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PortfolioDataPoint"
+
+  /tokens:
+    get:
+      operationId: listTokens
+      tags: [tokens]
+      summary: List supported tokens with live prices
+      responses:
+        "200":
+          description: Token list with prices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Token"
+
+  /tokens/{symbol}:
+    get:
+      operationId: getToken
+      tags: [tokens]
+      summary: Get token details and price
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+
+  /networks:
+    get:
+      operationId: listNetworks
+      tags: [networks]
+      summary: List available blockchain networks
+      responses:
+        "200":
+          description: Network list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Network"
+
+  /activity:
+    get:
+      operationId: getRecentActivity
+      tags: [activity]
+      summary: Get recent activity feed across all wallets
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Activity feed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +381,256 @@ components:
       required:
         - status
 
+    Wallet:
+      type: object
+      required: [id, name, address, networkId, color, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        address:
+          type: string
+        networkId:
+          type: integer
+        color:
+          type: string
+        totalValueUsd:
+          type: ["number", "null"]
+        change24hPercent:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+
+    WalletInput:
+      type: object
+      required: [name, networkId]
+      properties:
+        name:
+          type: string
+        networkId:
+          type: integer
+        color:
+          type: string
+        importedAddress:
+          type: ["string", "null"]
+
+    WalletUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+
+    TokenHolding:
+      type: object
+      required: [id, walletId, tokenSymbol, tokenName, balance, valueUsd, priceUsd, logoUrl, change24hPercent]
+      properties:
+        id:
+          type: integer
+        walletId:
+          type: integer
+        tokenSymbol:
+          type: string
+        tokenName:
+          type: string
+        balance:
+          type: number
+        valueUsd:
+          type: number
+        priceUsd:
+          type: number
+        logoUrl:
+          type: string
+        change24hPercent:
+          type: number
+
+    Transaction:
+      type: object
+      required: [id, walletId, type, status, fromAddress, toAddress, amount, tokenSymbol, valueUsd, networkId, hash, createdAt]
+      properties:
+        id:
+          type: integer
+        walletId:
+          type: integer
+        type:
+          type: string
+          enum: [send, receive, swap, contract]
+        status:
+          type: string
+          enum: [pending, confirmed, failed]
+        fromAddress:
+          type: string
+        toAddress:
+          type: string
+        amount:
+          type: number
+        tokenSymbol:
+          type: string
+        toTokenSymbol:
+          type: ["string", "null"]
+        toAmount:
+          type: ["number", "null"]
+        valueUsd:
+          type: number
+        networkId:
+          type: integer
+        hash:
+          type: string
+        gasFeeEth:
+          type: ["number", "null"]
+        gasFeeUsd:
+          type: ["number", "null"]
+        note:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    SendInput:
+      type: object
+      required: [toAddress, amount, tokenSymbol]
+      properties:
+        toAddress:
+          type: string
+        amount:
+          type: number
+        tokenSymbol:
+          type: string
+        note:
+          type: ["string", "null"]
+
+    SwapInput:
+      type: object
+      required: [fromTokenSymbol, toTokenSymbol, amount]
+      properties:
+        fromTokenSymbol:
+          type: string
+        toTokenSymbol:
+          type: string
+        amount:
+          type: number
+
+    Token:
+      type: object
+      required: [id, symbol, name, priceUsd, change24hPercent, logoUrl, marketCapUsd, volume24hUsd]
+      properties:
+        id:
+          type: integer
+        symbol:
+          type: string
+        name:
+          type: string
+        priceUsd:
+          type: number
+        change24hPercent:
+          type: number
+        logoUrl:
+          type: string
+        marketCapUsd:
+          type: number
+        volume24hUsd:
+          type: number
+        isPopular:
+          type: boolean
+
+    Network:
+      type: object
+      required: [id, name, symbol, chainId, rpcUrl, explorerUrl, logoUrl, isTestnet]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        symbol:
+          type: string
+        chainId:
+          type: integer
+        rpcUrl:
+          type: string
+        explorerUrl:
+          type: string
+        logoUrl:
+          type: string
+        isTestnet:
+          type: boolean
+        color:
+          type: string
+
+    Nft:
+      type: object
+      required: [id, walletId, name, collection, tokenId, imageUrl, networkId]
+      properties:
+        id:
+          type: integer
+        walletId:
+          type: integer
+        name:
+          type: string
+        collection:
+          type: string
+        tokenId:
+          type: string
+        imageUrl:
+          type: string
+        networkId:
+          type: integer
+        floorPriceEth:
+          type: ["number", "null"]
+        floorPriceUsd:
+          type: ["number", "null"]
+        traits:
+          type: ["string", "null"]
+
+    PortfolioSummary:
+      type: object
+      required: [totalValueUsd, change24hUsd, change24hPercent, topAsset, walletCount, networkCount]
+      properties:
+        totalValueUsd:
+          type: number
+        change24hUsd:
+          type: number
+        change24hPercent:
+          type: number
+        topAsset:
+          type: string
+        walletCount:
+          type: integer
+        networkCount:
+          type: integer
+        totalTransactions:
+          type: integer
+
+    PortfolioDataPoint:
+      type: object
+      required: [timestamp, valueUsd]
+      properties:
+        timestamp:
+          type: string
+        valueUsd:
+          type: number
+
+    ActivityItem:
+      type: object
+      required: [id, type, title, subtitle, valueUsd, timestamp, status, icon]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [send, receive, swap, contract, nft]
+        title:
+          type: string
+        subtitle:
+          type: string
+        valueUsd:
+          type: number
+        timestamp:
+          type: string
+        status:
+          type: string
+          enum: [pending, confirmed, failed]
+        icon:
+          type: string
+        walletName:
+          type: string

@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "NP Wallet"
+version = "1.0.0"
+id = "artifacts/web3-wallet"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24290
+
+[services.development]
+run = "pnpm --filter @workspace/web3-wallet run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/web3-wallet", "run", "build" ]
+publicDir = "artifacts/web3-wallet/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24290"
+BASE_PATH = "/"

@@ -60,29 +60,27 @@
 }
 
 :root {
-  /* Nexa light theme — navy/cyan brand */
-  --background: 210 20% 98%;
+  --background: 230 35% 96%;
   --foreground: 222 47% 8%;
 
-  --muted: 210 20% 94%;
+  --muted: 230 25% 92%;
   --muted-foreground: 215 16% 47%;
 
   --popover: 0 0% 100%;
   --popover-foreground: 222 47% 8%;
-  --popover-border: 214 32% 91%;
+  --popover-border: 230 25% 88%;
 
   --card: 0 0% 100%;
   --card-foreground: 222 47% 8%;
-  --card-border: 214 32% 91%;
+  --card-border: 230 25% 90%;
 
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
+  --border: 230 25% 88%;
+  --input: 230 25% 88%;
 
-  /* Nexa primary: electric blue */
-  --primary: 220 100% 56%;
+  --primary: 244 76% 63%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 210 20% 94%;
+  --secondary: 230 25% 92%;
   --secondary-foreground: 222 47% 8%;
 
   --accent: 185 100% 50%;
@@ -97,16 +95,15 @@
   --warning: 38 92% 50%;
   --warning-foreground: 0 0% 100%;
 
-  --ring: 220 100% 56%;
-  --radius: 0.65rem;
+  --ring: 244 76% 63%;
+  --radius: 0.75rem;
 
-  --chart-1: 220 100% 56%;
+  --chart-1: 244 76% 63%;
   --chart-2: 142 72% 29%;
   --chart-3: 38 92% 50%;
   --chart-4: 280 65% 60%;
   --chart-5: 185 100% 40%;
 
-  /* Dark sidebar matching Nexa navy brand */
   --sidebar: 222 60% 8%;
   --sidebar-foreground: 210 20% 88%;
   --sidebar-border: 222 45% 16%;
@@ -120,13 +117,91 @@
   body { @apply font-sans bg-background text-foreground antialiased; }
 }
 
-/* Nexa brand gradient utility */
+/* ── Brand gradient utilities ── */
 .nexa-gradient {
-  background: linear-gradient(135deg, #00e5ff 0%, #2979ff 50%, #1a237e 100%);
+  background: linear-gradient(135deg, #1a1363 0%, #2d2b8e 35%, #5b5be6 75%, #7c6fcd 100%);
 }
 .nexa-text-gradient {
-  background: linear-gradient(135deg, #00b8d4, #2979ff);
+  background: linear-gradient(135deg, #5b5be6, #00b8d4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* ── Floating particles animation ── */
+@keyframes float-up {
+  0%   { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  15%  { opacity: 0.6; }
+  85%  { opacity: 0.4; }
+  100% { transform: translateY(-120vh) translateX(30px) scale(0.4); opacity: 0; }
+}
+
+@keyframes float-orb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(40px, -30px) scale(1.05); }
+  66%       { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(91, 91, 230, 0.3); }
+  50%       { box-shadow: 0 0 40px rgba(91, 91, 230, 0.6), 0 0 80px rgba(91, 91, 230, 0.2); }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.particle {
+  animation: float-up linear infinite;
+}
+
+.orb-float {
+  animation: float-orb ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out both;
+}
+
+/* ── Card flip ── */
+.card-flip-container { perspective: 1200px; }
+.card-flip-inner { transition: transform 0.7s cubic-bezier(0.4,0,0.2,1); transform-style: preserve-3d; position: relative; }
+.card-flip-container.flipped .card-flip-inner { transform: rotateY(180deg); }
+.card-front, .card-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.card-back { transform: rotateY(180deg); position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+
+/* ── Glass morphism ── */
+.glass {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }

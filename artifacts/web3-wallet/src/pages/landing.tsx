@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { listWallets } from "@workspace/api-client-react";
+import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   Zap, Shield, Globe, BarChart2, ArrowRightLeft,
@@ -171,15 +172,21 @@ function AppMockup() {
 export default function Landing() {
   const [, navigate] = useLocation();
 
+  const { user } = useAuth();
+
   const { data: wallets, isLoading } = useQuery({
     queryKey: ["wallets"],
     queryFn: () => listWallets(),
     staleTime: 10_000,
+    enabled: !!user,
   });
 
-  const hasWallet = !isLoading && wallets && wallets.length > 0;
+  const hasWallet = !!user && !isLoading && wallets && wallets.length > 0;
 
-  const handleLaunch = () => navigate(hasWallet ? "/dashboard" : "/onboarding");
+  const handleLaunch = () => {
+    if (!user) { navigate("/login"); return; }
+    navigate(hasWallet ? "/dashboard" : "/onboarding");
+  };
 
   return (
     <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
@@ -201,8 +208,8 @@ export default function Landing() {
             <a href="#business" className="hover:text-slate-900 transition-colors">For Business</a>
           </nav>
           <div className="flex items-center gap-3">
-            {hasWallet && (
-              <button onClick={handleLaunch} className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">
+            {!user && (
+              <button onClick={() => navigate("/login")} className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">
                 Log In
               </button>
             )}
@@ -212,7 +219,7 @@ export default function Landing() {
               style={{ background: "linear-gradient(135deg,#2979ff,#1a237e)", color: "#fff" }}
               disabled={isLoading}
             >
-              {isLoading ? "Loading…" : "Get Started"}
+              {isLoading ? "Loading…" : user ? "Open App" : "Get Started"}
               <ChevronRight className="w-3.5 h-3.5" />
             </Button>
           </div>

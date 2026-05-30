@@ -1,8 +1,9 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { db } from "@workspace/db";
 import { transactionsTable, walletsTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, inArray } from "drizzle-orm";
 import { GetRecentActivityQueryParams } from "@workspace/api-zod";
+import { requireAuth, AuthRequest } from "../middleware/requireAuth.js";
 
 const router = Router();
 
@@ -14,20 +15,31 @@ const typeIconMap: Record<string, string> = {
   nft: "image",
 };
 
-router.get("/activity", async (req, res) => {
+router.get("/activity", requireAuth, async (req: Request, res: Response) => {
+  const userId = (req as AuthRequest).userId;
   const parsed = GetRecentActivityQueryParams.safeParse({
     limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
   });
-  if (!parsed.success) return res.status(400).json({ error: "Invalid params" });
+  if (!parsed.success) { res.status(400).json({ error: "Invalid params" }); return; }
 
   const limit = parsed.data.limit || 20;
+
+  const userWallets = await db
+    .select({ id: walletsTable.id })
+    .from(walletsTable)
+    .where(eq(walletsTable.userId, userId));
+  const walletIds = userWallets.map((w) => w.id);
+
+  if (walletIds.length === 0) {
+    res.json([]);
+    return;
+  }
+
   const txs = await db
-    .select({
-      tx: transactionsTable,
-      walletName: walletsTable.name,
-    })
+    .select({ tx: transactionsTable, walletName: walletsTable.name })
     .from(transactionsTable)
     .leftJoin(walletsTable, eq(transactionsTable.walletId, walletsTable.id))
+    .where(inArray(transactionsTable.walletId, walletIds))
     .orderBy(desc(transactionsTable.createdAt))
     .limit(limit);
 
@@ -68,7 +80,7 @@ router.get("/activity", async (req, res) => {
     };
   });
 
-  return res.json(items);
+  res.json(items);
 });
 
 export default router;

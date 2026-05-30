@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
   LayoutDashboard, PieChart, Wallet, ArrowRightLeft,
-  Image as ImageIcon, Coins, Settings, History, ChevronDown,
+  Image as ImageIcon, Coins, Settings, History, ChevronDown, LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useListWallets, getListWalletsQueryKey, useListNetworks, getListNetworksQueryKey } from "@workspace/api-client-react";
+import { useAuth } from "@/contexts/auth-context";
+import { useQueryClient } from "@tanstack/react-query";
 
 /* ── Nexa logo mark (small version for sidebar) ── */
 function NexaMark() {
@@ -39,6 +41,14 @@ export function Sidebar() {
   const [location] = useLocation();
   const activePath = location === "/" ? "/dashboard" : location;
   const [walletOpen, setWalletOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const queryClient = useQueryClient();
+
+  const handleLogout = () => {
+    queryClient.clear();
+    logout();
+    window.location.href = "/";
+  };
 
   const { data: wallets = [] } = useListWallets({ query: { queryKey: getListWalletsQueryKey() } });
   const { data: networks = [] } = useListNetworks({ query: { queryKey: getListNetworksQueryKey() } });
@@ -126,16 +136,31 @@ export function Sidebar() {
       </nav>
 
       {/* ── Footer ── */}
-      <div className="p-4 border-t" style={{ borderColor: "hsl(222,45%,14%)" }}>
-        <div className="flex items-center gap-2 mb-1">
+      <div className="p-4 border-t space-y-3" style={{ borderColor: "hsl(222,45%,14%)" }}>
+        {/* Network status */}
+        <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
           <span className="text-xs" style={{ color: "hsl(210,20%,50%)" }}>
-            {activeNetwork?.name || "Ethereum Mainnet"} · Live
+            {activeNetwork?.name || "Ethereum"} · Live
           </span>
         </div>
-        <div className="text-[10px]" style={{ color: "hsl(210,20%,30%)" }}>
-          © 2025 Nexa Payment Crypto
-        </div>
+
+        {/* User row + logout */}
+        {user && (
+          <div className="flex items-center justify-between">
+            <div className="overflow-hidden">
+              <div className="text-[11px] font-semibold text-slate-300 truncate">{user.email}</div>
+              <div className="text-[10px]" style={{ color: "hsl(210,20%,30%)" }}>Signed in</div>
+            </div>
+            <button
+              onClick={handleLogout}
+              title="Sign out"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all flex-shrink-0 ml-2"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

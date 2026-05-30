@@ -1,5 +1,6 @@
 export * from "./networks";
 export * from "./tokens";
+export * from "./users";
 export * from "./wallets";
 export * from "./tokenHoldings";
 export * from "./transactions";
